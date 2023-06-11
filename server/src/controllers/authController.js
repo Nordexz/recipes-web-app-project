@@ -18,6 +18,18 @@ function validateEmail(value) {
   }
 }
 
+function validateName(value) {
+  if (!value) {
+    return 'Name is required';
+  }
+
+  const namePattern = /^[a-zA-Z0-9_]{3,20}$/;
+
+  if (!namePattern.test(value)) {
+    return 'Name is not valid';
+  }
+}
+
 function validatePassword(value) {
   if (!value) {
     return 'Password is required';
@@ -29,18 +41,19 @@ function validatePassword(value) {
 }
 
 async function register(req, res, next) {
-  const { email, password } = req.body;
+  const { email, password, name } = req.body;
 
   const errors = {
+    name: validateName(name),
     email: validateEmail(email),
     password: validatePassword(password),
   };
 
-  if (errors.email || errors.password) {
+  if (errors.email || errors.password || errors.name) {
     throw ApiError.BadRequest('Validation error', errors)
   }
 
-  await userService.register({ email, password });
+  await userService.register({ email, password, name });
 
   res.send({ message: 'OK' });
 }
